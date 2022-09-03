@@ -1,11 +1,14 @@
 '''爬虫要先执行该段代码，获取所有股票代码，再根据代码获取所有股票评论'''
 
-import requests
-from spider.UA import agents
+import traceback
 import time
 import random
-from multiprocessing import Pool
 import json
+from multiprocessing import Pool
+
+import requests
+
+from spider.UA import agents
 from spider.db import StockMongo
 
 
@@ -28,10 +31,12 @@ def get_data(num):#默认是不使用dialing
     url=stocks_url.format(page=str(num),real_time=real_time)#股票列表URL
     while True:
         session = requests.session()
+        '''
         proxy = requests.get('http://localhost:5000/get').text  # 获取本地代理池代理
         proxies = {'http': 'http://{}'.format(proxy),
                    'https': 'http://{}'.format(proxy), }
         session.proxies = proxies  # 携带代理
+        '''
         try:
             html = session.get(url='https://xueqiu.com/', headers=headers)
             stocks_list = session.get(url, headers=headers)
@@ -46,8 +51,8 @@ def get_data(num):#默认是不使用dialing
                 break
         except:
             print('获取失败，准备重新获取')#失败后要
+            traceback.print_exc()
             time.sleep(2)
-            continue
 
 if __name__ =='__main__':
     pool =Pool(6)
